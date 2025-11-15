@@ -122,7 +122,6 @@
         <div class="fret-number-mini" id="fretNumbersMini"></div>
       </div>
     </div>
-    <div class="mini-label" id="miniLabel">コードをクリック → 指板に構成音が表示されます</div>
   </div>
 
   <script>
@@ -143,7 +142,6 @@
     const nonDiatonicGroups = document.getElementById('nonDiatonicGroups');
     const miniFretboard = document.getElementById('miniFretboard');
     const fretNumbersMini = document.getElementById('fretNumbersMini');
-    const miniLabel = document.getElementById('miniLabel');
     const fixedFretboard = document.getElementById('fixedFretboard');
     const toggleBtn = document.getElementById('toggleFretboard');
     const avoidToggle = document.getElementById('avoidToggle');
@@ -265,8 +263,7 @@
       currentChord = chord;
       const chordNotes = chord.tension ? getSeventhNotes(chord.root, chord.type, chord.tension) : chord.isSeventh ? getSeventhNotes(chord.root, chord.type) : getTriadNotes(chord.root, chord.type);
       const safeNotes = avoidMode ? getSafeScaleNotes(chord) : [];
-      drawMiniFretboard(chordNotes, safeNotes);
-      miniLabel.textContent = `${chord.roman} → ${chord.name} [${avoidMode ? safeNotes.join(', ') : chordNotes.join(', ')}] ${avoidMode ? '(構成音)' : ''}`;
+      drawMiniFretboard(chordNotes, safeNotes)
     }
 
     function updateChords() {
@@ -322,7 +319,6 @@
       });
 
       drawMiniFretboard();
-      miniLabel.textContent = 'コードをクリック → 指板に構成音が表示されます';
     }
 
 function getNonDiatonicChord(roman, root, type, rootNum, isSeventh) {
