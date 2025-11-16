@@ -1,20 +1,20 @@
 {
-  "name": "作曲支援ツール ETERNAL TRUTH",
-  "short_name": "作曲ツール",
+  "name": "作曲支援ツール",
+  "short_name": "作曲支援ツール",
   "description": "ダイアトニック・非ダイアトニックコードと指板表示",
-  "start_url": "/index.html",
-  "display": "fullscreen",
+  "start_url": "/composition_tool/",
+  "display": "standalone",
   "background_color": "#1e1e1e",
   "theme_color": "#007bff",
   "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/composition_tool/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "/composition_tool/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

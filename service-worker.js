@@ -1,12 +1,12 @@
 const CACHE_NAME = 'eternal-truth-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/composition_tool/',
+  '/composition_tool/index.html',
+  '/composition_tool/style.css',
+  '/composition_tool/script.js',
+  '/composition_tool/manifest.json',
+  '/composition_tool/icon-192.png',
+  '/composition_tool/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
