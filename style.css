@@ -42,46 +42,46 @@ select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px r
 .non-group { background:white; padding:14px; border-radius:12px; border:1px solid var(--border); }
 .non-group h4 { margin-bottom:10px; font-size:1.1rem; color:var(--primary); font-weight:600; }
 
-/* 修正：固定フレットボードを縦並び */
 .fixed-fretboard {
-  position: fixed; bottom: 0; left: 0; width: 100%; background: var(--fixed-bg); color: white;
-  padding: 12px 16px; box-shadow: 0 -4px 16px rgba(0,0,0,0.3); z-index: 999; transition: transform 0.3s ease;
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  width: 100%; 
+  background: var(--fixed-bg); 
+  color: white;
+  padding: 12px 16px; 
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.3); 
+  z-index: 999; 
+  transition: transform 0.3s ease;
   display: flex; 
   flex-direction: column;   /* ← 縦並び！ */
   align-items: stretch;
   gap: 8px;
 }
 
+/* ボタン行：左寄せ */
+.fixed-fretboard > .controls {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+/* フレットボードラッパー：横スクロール */
 .fretboard-wrapper { 
   overflow-x: auto; 
   overflow-y: hidden; 
   white-space: nowrap; 
-  padding-bottom: 10px; 
-  flex: 1;
-  -webkit-overflow-scrolling: touch; /* ← モバイルスクロール改善 */
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.fretboard-mini { 
-  display: inline-block; 
-  background: var(--fretboard-bg); 
-  padding: 10px 12px; 
-  border-radius: 10px; 
-  border: 2px solid #5d4037; 
-  min-width: max-content;
-}
-
-/* ボタンとラベルは横並びでもOK */
-.fixed-fretboard > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* ラベル：中央揃え・折り返しOK */
 .mini-label { 
   font-size: 0.9rem; 
-  white-space: normal; 
-  word-break: break-all;
   text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
 }
 @media (max-width:768px) {
   .fret-mini { width:22px; height:22px; font-size:0.6rem; }
