@@ -3,10 +3,10 @@
   "short_name": "作曲ツール",
   "description": "ダイアトニック・非ダイアトニックコードと指板表示",
   "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#f8f9fa",
+  "display": "fullscreen",
+  "background_color": "#1e1e1e",
   "theme_color": "#007bff",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
