@@ -5,18 +5,7 @@
   "start_url": "/composition_tool/",
   "display": "fullscreen",
   "background_color": "#1e1e1e",
-  "theme_color": "#007bff",
+  "theme_color": "#1e1e1e",
   "orientation": "any",
-  "icons": [
-    {
-      "src": "/composition_tool/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/composition_tool/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "icons": []
 }
