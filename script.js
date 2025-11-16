@@ -1,0 +1,253 @@
+// === スケール定義 ===
+const scales = {
+  major: { intervals: [0,2,4,5,7,9,11], roman: ['I','ii','iii','IV','V','vi','vii°'], types: ['M','m','m','M','M','m','dim'], roles: ['tonic','subdominant','tonic','subdominant','dominant','tonic','dominant'] },
+  'minor-natural': { intervals: [0,2,3,5,7,8,10], roman: ['i','ii°','III','iv','v','VI','VII'], types: ['m','dim','M','m','m','M','M'], roles: ['tonic','subdominant','tonic','subdominant','dominant','subdominant','dominant'] },
+  'minor-harmonic': { intervals: [0,2,3,5,7,8,11], roman: ['i','ii°','III+','iv','V','VI','vii°'], types: ['m','dim','aug','m','M','M','dim'], roles: ['tonic','subdominant','tonic','subdominant','dominant','subdominant','dominant'] },
+  'minor-melodic': { intervals: [0,2,3,5,7,9,11], roman: ['i','ii','III','IV','V','vi°','vii°'], types: ['m','m','M','M','M','dim','dim'], roles: ['tonic','subdominant','tonic','subdominant','dominant','tonic','dominant'] }
+};
+
+const noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const noteToNum = Object.fromEntries(noteNames.map((n,i)=>[n,i]));
+const openStrings = ['E','B','G','D','A','E'];
+
+// === DOM ===
+const scaleType = document.getElementById('scaleType');
+const rootNote = document.getElementById('rootNote');
+const diatonicDiv = document.getElementById('diatonicChords');
+const nonDiatonicGroups = document.getElementById('nonDiatonicGroups');
+const miniFretboard = document.getElementById('miniFretboard');
+const fretNumbersMini = document.getElementById('fretNumbersMini');
+const miniLabel = document.getElementById('miniLabel');
+const fixedFretboard = document.getElementById('fixedFretboard');
+const toggleBtn = document.getElementById('toggleFretboard');
+const avoidToggle = document.getElementById('avoidToggle');
+
+let fretboardVisible = true;
+let avoidMode = false;
+let currentChord = null;
+
+// === イベント ===
+toggleBtn.onclick = () => {
+  fretboardVisible = !fretboardVisible;
+  fixedFretboard.style.transform = fretboardVisible ? 'translateY(0)' : 'translateY(100%)';
+  toggleBtn.textContent = fretboardVisible ? '指板 非表示' : '指板 表示';
+};
+
+avoidToggle.onclick = () => {
+  avoidMode = !avoidMode;
+  avoidToggle.classList.toggle('active', avoidMode);
+  avoidToggle.textContent = avoidMode ? 'アボイド除外 ON' : 'アボイド除外';
+  if (currentChord) drawWithAvoid(currentChord);
+};
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); updateChords(); };
+});
+
+// === スケール音取得 ===
+function getScaleNotes() {
+  const rootNum = noteToNum[rootNote.value];
+  const type = scaleType.value;
+  return scales[type].intervals.map(i => noteNames[(rootNum + i) % 12]);
+}
+
+// === アボイド音 ===
+function getAvoidNote(chord) {
+  if (!chord.isSeventh) return null;
+  const rootNum = noteToNum[chord.root];
+  if (chord.name.includes('maj7') || chord.name.includes('M7')) return noteNames[(rootNum + 5) % 12]; // 11th
+  if (chord.name.includes('m7') || chord.name.includes('dim7')) return noteNames[(rootNum + 8) % 12]; // 9th
+  return null;
+}
+
+function getSafeScaleNotes(chord) {
+  const scaleNotes = getScaleNotes();
+  const avoid = getAvoidNote(chord);
+  return avoid ? scaleNotes.filter(n => n !== avoid) : scaleNotes;
+}
+
+// === 指板描画 ===
+// === 指板描画（修正版）===
+function drawMiniFretboard(chordNotes = [], safeNotes = [], avoidNote = null) {
+  miniFretboard.innerHTML=''; fretNumbersMini.innerHTML='';
+  const frets = 25;
+  const markers = [3,5,7,9,12,15,17,19,21,24];
+  for (let f = 1; f < frets; f++) {
+    const n = document.createElement('span'); n.textContent = f; n.style.margin = '0 8px';
+    fretNumbersMini.appendChild(n);
+  }
+  openStrings.forEach(o => {
+    const str = document.createElement('div'); str.className = 'string-mini';
+    for (let f = 0; f < frets; f++) {
+      const div = document.createElement('div'); div.className = 'fret-mini';
+      if (f === 0) div.textContent = o;
+      if (f > 0) div.dataset.fret = f;
+      if (f > 0 && markers.includes(f)) {
+        if (f === 12 || f === 24) {
+          const dm = document.createElement('div'); 
+          dm.style.display = 'flex'; dm.style.gap = '12px'; dm.style.position = 'absolute'; 
+          dm.style.top = '50%'; dm.style.left = '50%'; dm.style.transform = 'translate(-50%,-50%)';
+          dm.innerHTML = '<div style="width:8px;height:8px;background:#d4af37;border-radius:50%;"></div><div style="width:8px;height:8px;background:#d4af37;border-radius:50%;"></div>';
+          div.appendChild(dm);
+        } else {
+          const m = document.createElement('div'); m.style.width = '8px'; m.style.height = '8px'; m.style.background = '#d4af37'; m.style.borderRadius = '50%'; m.style.position = 'absolute'; m.style.top = '50%'; m.style.left = '50%'; m.style.transform = 'translate(-50%,-50%)'; div.appendChild(m);
+        }
+      }
+      const note = noteNames[(noteToNum[o] + f) % 12];
+
+      if (chordNotes.includes(note)) {
+        const dot = document.createElement('div');
+        dot.className = 'dot-mini chord-dot';
+        dot.textContent = getDegreeLabel(note, currentChord);
+        div.appendChild(dot);
+      } 
+      else if (avoidMode && avoidNote && note === avoidNote) {
+        const dot = document.createElement('div');
+        dot.className = 'dot-mini avoid-dot';  // 赤！
+        dot.textContent = getDegreeLabel(note, currentChord);
+        div.appendChild(dot);
+      }
+      else if (avoidMode && safeNotes.includes(note)) {
+        const dot = document.createElement('div');
+        dot.className = 'dot-mini safe-dot';
+        dot.textContent = getDegreeLabel(note, currentChord);
+        div.appendChild(dot);
+      }
+      str.appendChild(div);
+    }
+    miniFretboard.appendChild(str);
+  });
+}
+// === 音度ラベル ===
+function getDegreeLabel(note, chord) {
+  if (!chord) return note;
+  const diff = (noteToNum[note] - noteToNum[chord.root] + 12) % 12;
+  const labels = {0:'R', 3:'b3', 4:'3', 6:'b5', 7:'5', 8:'#5', 10:'b7', 11:'7', 1:'b9', 2:'#9', 9:'b13'};
+  return labels[diff] || note;
+}
+
+// === コード音取得 ===
+function getTriadNotes(root, type) {
+  const r = noteToNum[root];
+  const third = type === 'm' || type === 'dim' ? 3 : 4;
+  const fifth = type === 'dim' ? 6 : type === 'aug' ? 8 : 7;
+  return [noteNames[r], noteNames[(r + third) % 12], noteNames[(r + fifth) % 12]];
+}
+
+function getSeventhNotes(root, type, tension = '') {
+  const triad = getTriadNotes(root, type);
+  const seventh = type === 'M' ? 11 : 10;
+  const notes = [...triad, noteNames[(noteToNum[root] + seventh) % 12]];
+  if (tension === '♭9') notes.push(noteNames[(noteToNum[root] + 1) % 12]);
+  if (tension === '♯9') notes.push(noteNames[(noteToNum[root] + 3) % 12]);
+  if (tension === '♭13') notes.push(noteNames[(noteToNum[root] + 8) % 12]);
+  return notes;
+}
+
+// === 描画 ===
+function drawWithAvoid(chord) {
+  currentChord = chord;
+  const chordNotes = chord.tension ? getSeventhNotes(chord.root, chord.type, chord.tension) : chord.isSeventh ? getSeventhNotes(chord.root, chord.type) : getTriadNotes(chord.root, chord.type);
+  const avoidNote = avoidMode ? getAvoidNote(chord) : null;
+  const safeNotes = avoidMode ? getSafeScaleNotes(chord) : [];
+  drawMiniFretboard(chordNotes, safeNotes, avoidNote);  // avoidNote 追加
+  miniLabel.textContent = `${chord.roman} → ${chord.name} [${avoidMode ? safeNotes.join(', ') : chordNotes.join(', ')}] ${avoidMode ? `(アボイド: ${avoidNote || 'なし'})` : ''}`;
+}
+
+// === 更新 ===
+function updateChords() {
+  const root = rootNote.value; const type = scaleType.value; const scale = scales[type]; const rootNum = noteToNum[root];
+  diatonicDiv.innerHTML = ''; nonDiatonicGroups.innerHTML = '';
+  const isSeventh = document.querySelector('.tab.active').dataset.tab === 'seventh';
+
+  // ダイアトニック
+  scale.roman.forEach((r, i) => {
+    const n = noteNames[(rootNum + scale.intervals[i]) % 12];
+    const t = scale.types[i];
+    const chordName = isSeventh ? n + (t === 'M' ? 'maj7' : t === 'm' ? 'm7' : t === 'dim' ? 'dim7' : 'aug7') : n + (t === 'M' ? '' : t === 'm' ? 'm' : t === 'dim' ? 'dim' : t === 'aug' ? 'aug' : '');
+    const role = scale.roles[i];
+    const card = document.createElement('div'); card.className = 'chord-card';
+    card.innerHTML = `<div class="roman">${r}</div><div class="actual">${chordName}</div><div class="role ${role}">${role === 'tonic' ? 'トニック' : role === 'subdominant' ? 'サブドミナント' : 'ドミナント'}</div>`;
+    card.onclick = () => {
+      const chord = { roman: r, name: chordName, root: n, type: t, isSeventh, tension: '' };
+      drawWithAvoid(chord);
+    };
+    diatonicDiv.appendChild(card);
+  });
+
+  // 非ダイアトニック
+  const nonCats = [
+    {name:"セカンダリードミナント",chords:type.includes('major')?['V/V','V/ii','V/vi','V/iii','V/IV']:['V/VI','V/iv','V/v','V/III','V/VII']},
+    {name:"借用和音",chords:type.includes('major')?['iv','bVII','bVI','bIII']:['IV','bVI','bVII','bIII']},
+    {name:"裏コード",chords:['♭II']},
+    {name:"ナポリのII",chords:['♭II (メジャー)']},
+    {name:"オーギュメント",chords:['V+']},
+    {name:"モードミクス",chords:type.includes('major')?['bII','♯IV','♯V']:['♯I','♯II','♯IV']},
+    {name:"ナポリのVI",chords:['♭VI']},
+    {name:"オルタードドミナント",chords:['V7♭9','V7♯9','V7♭13']},
+    {name:"クロマチックメディエント",chords:['III','♭VI']},
+    {name:"ディミニッシュセブンス",chords:['vii°7']}
+  ];
+
+  nonCats.forEach(cat => {
+    const group = document.createElement('div'); group.className = 'non-group';
+    group.innerHTML = `<h4>${cat.name}</h4>`;
+    const grid = document.createElement('div'); grid.className = 'chord-grid';
+    cat.chords.forEach(sym => {
+      const actual = getNonDiatonicChord(sym, root, type, rootNum, isSeventh);
+      const card = document.createElement('div'); card.className = 'chord-card'; card.style.opacity = '0.92';
+      card.innerHTML = `<div class="roman">${sym}</div><div class="actual">${actual}</div><div class="role dominant">ドミナント</div>`;
+      card.onclick = () => {
+        const rootN = actual.replace(/[^A-G]#?b?.*$/g, '');
+        const typ = actual.includes('m') || actual.includes('dim') ? 'm' : 'M';
+        const tension = sym.includes('♭9') ? '♭9' : sym.includes('♯9') ? '♯9' : sym.includes('♭13') ? '♭13' : '';
+        const chord = { roman: sym, name: actual, root: rootN, type: typ, isSeventh, tension };
+        drawWithAvoid(chord);
+      };
+      grid.appendChild(card);
+    });
+    group.appendChild(grid); nonDiatonicGroups.appendChild(group);
+  });
+
+  drawMiniFretboard();
+  miniLabel.textContent = 'コードをクリック → 指板に構成音が表示されます';
+}
+
+// === 非ダイアトニックコード変換（完全連動）===
+function getNonDiatonicChord(roman, root, type, rootNum, isSeventh) {
+  const r = noteToNum[root];
+  if (roman.includes('V/')) {
+    const target = roman.split('/')[1];
+    const targetIdx = scales[type].roman.findIndex(x => x.toLowerCase() === target.toLowerCase());
+    if (targetIdx === -1) return roman;
+    const targetRoot = noteNames[(r + scales[type].intervals[targetIdx]) % 12];
+    const chordRoot = noteNames[(noteToNum[targetRoot] + 7) % 12];
+    return isSeventh ? chordRoot + '7' : chordRoot;
+  }
+  if (roman === '♭II') return noteNames[(r + 1) % 12] + (isSeventh ? 'm7' : 'm');
+  if (roman === '♭II (メジャー)') return noteNames[(r + 1) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === 'V+') return noteNames[(r + 7) % 12] + (isSeventh ? 'maj7' : '+');
+  if (roman === 'bVII') return noteNames[(r + 10) % 12] + (isSeventh ? '7' : '');
+  if (roman === '♭VI' || roman === 'bVI') return noteNames[(r + 8) % 12];  // ナポリのVI & クロマチック → 常にメジャー3和音
+  if (roman === 'bIII') return noteNames[(r + 3) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === 'iv' && type === 'major') return noteNames[(r + 5) % 12] + (isSeventh ? 'm7' : 'm');
+  if (roman === 'IV' && type.includes('minor')) return noteNames[(r + 5) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === 'vii°7') {
+    const viiRoot = noteNames[(r + (type.includes('major') ? 11 : 10)) % 12];
+    return viiRoot + 'dim7';
+  }
+  if (roman === 'bII') return noteNames[(r + 1) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === '♯IV') return noteNames[(r + 6) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === '♯V') return noteNames[(r + 8) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === '♯I') return noteNames[(r + 1) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === '♯II') return noteNames[(r + 3) % 12] + (isSeventh ? 'maj7' : '');
+  if (roman === 'III') return noteNames[(r + 4) % 12];  // クロマチックメディエント → 常にメジャー3和音
+  if (roman === 'V7♭9') return noteNames[(r + 7) % 12] + '7♭9';
+  if (roman === 'V7♯9') return noteNames[(r + 7) % 12] + '7♯9';
+  if (roman === 'V7♭13') return noteNames[(r + 7) % 12] + '7♭13';
+  return roman;
+}
+
+// === 初期化 ===
+scaleType.onchange = rootNote.onchange = updateChords;
+updateChords();

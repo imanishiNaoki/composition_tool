@@ -1,0 +1,95 @@
+:root {
+  --bg: #f8f9fa; --card: #ffffff; --text: #212529; --border: #dee2e6;
+  --primary: #007bff; --tonic: #dc3545; --subdominant: #6f42c1; --dominant: #ffc107;
+  --gray: #6c757d; --light-gray: #e9ecef; --header-bg: #007bff; --header-text: white;
+  --fretboard-bg: #2c1e16; --fret-line: #a07855; --fret-marker: #d4af37; --fixed-bg: #1e1e1e;
+  --avoid: #ff4444; --degree: #ffffff; --safe: #28a745;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+body { background:var(--bg); color:var(--text); line-height:1.6; padding-top:60px; padding-bottom:140px; }
+
+header {
+  position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--header-bg); color: var(--header-text);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.15); z-index: 1000;
+}
+header h1 { font-size: 1.3rem; font-weight: 600; }
+.toggle-btn, .avoid-btn {
+  background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 12px; border-radius: 6px;
+  cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; margin-left: 8px;
+}
+.toggle-btn:hover, .avoid-btn:hover { background: rgba(255,255,255,0.4); }
+.avoid-btn.active { background: var(--avoid); }
+
+.container { max-width:1100px; margin: 1rem auto; padding: 0 1rem; }
+.section { background:var(--card); border-radius:16px; padding:24px; margin-bottom:24px; box-shadow:0 6px 20px rgba(0,0,0,0.08); border:1px solid var(--border); }
+.selector { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; justify-content:center; }
+select { padding:10px 18px; border:1px solid var(--border); border-radius:10px; background:white; color:var(--text); font-size:0.95rem; min-width:160px; cursor:pointer; font-weight:500; }
+select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,123,255,0.2); }
+
+.tabs { display:flex; gap:8px; margin-bottom:16px; border-bottom:2px solid var(--light-gray); }
+.tab { padding:8px 16px; background:var(--light-gray); border:none; border-radius:8px 8px 0 0; cursor:pointer; font-weight:600; font-size:0.9rem; transition:0.3s; }
+.tab.active { background:var(--primary); color:white; }
+
+.chord-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(85px,1fr)); gap:12px; }
+.chord-card { background:white; padding:12px 8px; border-radius:12px; cursor:pointer; text-align:center; border:1px solid var(--border); box-shadow:0 2px 6px rgba(0,0,0,0.06); transition:all 0.3s ease; font-size:0.9rem; }
+.chord-card:hover { transform:translateY(-4px); box-shadow:0 6px 16px rgba(0,0,0,0.12); border-color:var(--primary); }
+.roman { font-weight:bold; font-size:0.98rem; color:var(--primary); }
+.actual { font-size:0.88rem; margin:3px 0; color:var(--gray); font-weight:500; }
+.role { font-size:0.7rem; padding:2px 6px; border-radius:4px; margin-top:3px; color:white; font-weight:500; }
+.tonic { background:var(--tonic); } .subdominant { background:var(--subdominant); } .dominant { background:var(--dominant); color:#212529; }
+
+.non-diatonic-groups { display:grid; gap:16px; }
+.non-group { background:white; padding:14px; border-radius:12px; border:1px solid var(--border); }
+.non-group h4 { margin-bottom:10px; font-size:1.1rem; color:var(--primary); font-weight:600; }
+
+/* 修正：固定フレットボードを縦並び */
+.fixed-fretboard {
+  position: fixed; bottom: 0; left: 0; width: 100%; background: var(--fixed-bg); color: white;
+  padding: 12px 16px; box-shadow: 0 -4px 16px rgba(0,0,0,0.3); z-index: 999; transition: transform 0.3s ease;
+  display: flex; 
+  flex-direction: column;   /* ← 縦並び！ */
+  align-items: stretch;
+  gap: 8px;
+}
+
+.fretboard-wrapper { 
+  overflow-x: auto; 
+  overflow-y: hidden; 
+  white-space: nowrap; 
+  padding-bottom: 10px; 
+  flex: 1;
+  -webkit-overflow-scrolling: touch; /* ← モバイルスクロール改善 */
+}
+
+.fretboard-mini { 
+  display: inline-block; 
+  background: var(--fretboard-bg); 
+  padding: 10px 12px; 
+  border-radius: 10px; 
+  border: 2px solid #5d4037; 
+  min-width: max-content;
+}
+
+/* ボタンとラベルは横並びでもOK */
+.fixed-fretboard > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mini-label { 
+  font-size: 0.9rem; 
+  white-space: normal; 
+  word-break: break-all;
+  text-align: center;
+}
+@media (max-width:768px) {
+  .fret-mini { width:22px; height:22px; font-size:0.6rem; }
+  .fret-mini:first-child { width:40px; }
+  .dot-mini { width:14px; height:14px; font-size:0.65rem; }
+  .fixed-fretboard { flex-direction: column; padding: 8px; }
+}
+.avoid-dot {
+  background: var(--avoid);  /* #ff4444 */
+  color: white;
+}
