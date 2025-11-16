@@ -3,7 +3,7 @@
   "short_name": "作曲支援ツール",
   "description": "ダイアトニック・非ダイアトニックコードと指板表示",
   "start_url": "/composition_tool/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#1e1e1e",
   "theme_color": "#007bff",
   "orientation": "any",
