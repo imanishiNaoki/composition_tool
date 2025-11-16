@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+<link rel="manifest" href="manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>作曲支援ツール - ETERNAL TRUTH</title>
   <link rel="stylesheet" href="style.css" />
@@ -48,24 +49,16 @@
 
   </div>
 
-<div class="fixed-fretboard" id="fixedFretboard">
-  <div class="controls">
+  <div class="fixed-fretboard" id="fixedFretboard">
     <button class="avoid-btn" id="avoidToggle">アボイド除外</button>
-  </div>
-  <div class="fretboard-wrapper">
-    <div class="fretboard-mini" id="miniFretboard">
-      <div class="fret-number-mini" id="fretNumbersMini"></div>
+    <div class="fretboard-wrapper">
+      <div class="fretboard-mini" id="miniFretboard">
+        <div class="fret-number-mini" id="fretNumbersMini"></div>
+      </div>
     </div>
+    <div class="mini-label" id="miniLabel">コードをクリック → 指板に構成音が表示されます</div>
   </div>
-  <div class="mini-label" id="miniLabel">コードをクリック → 指板に構成音が表示されます</div>
-</div>
 
   <script src="script.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js');
-      });
-    }
 </body>
 </html>
