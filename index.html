@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-<link rel="manifest" href="manifest.json" />
+<link rel="manifest" href="/composition_tool/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>作曲支援ツール</title>
   <link rel="stylesheet" href="style.css" />
@@ -60,5 +60,12 @@
   </div>
 
   <script src="script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js');
+    });
+  }
+</script>
 </body>
 </html>
